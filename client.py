@@ -1,5 +1,6 @@
 import socket
 import threading
+import json
 
 class Client:
     def __init__(self):
@@ -33,6 +34,14 @@ class Client:
 
     def input_handler(self):
         while 1:
-            self.s.send((self.username+' - '+input()).encode())
+            msg = input("enter message --> ")
+            dest = input("enter destination address --> ")
+            h = {
+                'source': self.username,
+                'dest': dest,
+                'msg': msg,
+            }
+            j = json.dumps(h)
+            self.s.send(j.encode())
 
 client = Client()
