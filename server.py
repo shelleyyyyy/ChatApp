@@ -34,8 +34,18 @@ class Server:
             print(c.getsockname())
             print(c.getpeername()[0])
             username = c.recv(1024).decode()
-            print('New connection. Username: '+str(username))
-            self.broadcast('New person joined the room. Username: '+username)
+           
+            
+            # print('New connection. Username: '+str(username))
+            
+            # h = {
+            #     'msg': 'joined',
+            #     'join': username,
+            # }
+            
+            # j = json.dumps(h)
+            
+            # self.broadcast(j)
 
             self.username_lookup[c] = username
             
@@ -61,7 +71,7 @@ class Server:
                 self.clients.remove(c)
                 
                 print(str(self.username_lookup[c])+' left the room.')
-                self.broadcast(str(self.username_lookup[c])+' has left the room.')
+                # self.broadcast(str(self.username_lookup[c])+' has left the room.')
 
                 break
 
