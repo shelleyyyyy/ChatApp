@@ -8,10 +8,16 @@ class Server:
     def start_server(self):
         self.s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         
-        host = '10.13.18.76'
+        host = '144.75.133.23'
         port = int(input('Enter port to run the server on --> '))
 
+        routes = [{'souce':'bole', 'destination':'caveman', 'cost':'100'}, 
+            {'souce':'caveman', 'destination':'biller', 'cost':'25'}, 
+            {'souce':'biller', 'destination':'Goe', 'cost':'50'}, 
+            {'souce':'Goe', 'destination':'bole', 'cost':'75'}]
+
         self.clients = []
+        self.nodes = []
 
         self.s.bind((host,port))
         self.s.listen(100)
@@ -25,7 +31,6 @@ class Server:
             c, addr = self.s.accept()
 
             username = c.recv(1024).decode()
-            
             print('New connection. Username: '+str(username))
             self.broadcast('New person joined the room. Username: '+username)
 
@@ -38,6 +43,11 @@ class Server:
     def broadcast(self,msg):
         for connection in self.clients:
             connection.send(msg.encode())
+
+    def specific_broadcast(self,msg, destination):
+        for connection in self.clients:
+            if connection.getpeername()[0] == destination:
+                connection.send(msg.encode())
 
     def handle_client(self,c,addr):
         while True:
@@ -53,9 +63,12 @@ class Server:
                 break
 
             if msg.decode() != '':
+                mes = msg.decode()
+                mes = mes.split(' : ')
                 print('New message: '+str(msg.decode()))
-                for connection in self.clients:
+                """ for connection in self.clients:
                     if connection != c:
-                        connection.send(msg)
+                        connection.send(msg) """
+                self.specific_broadcast(mes[0], mes[1])
 
 server = Server()
