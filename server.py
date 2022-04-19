@@ -12,10 +12,10 @@ class Server:
         host = '144.75.133.23'
         port = int(input('Enter port to run the server on --> '))
 
-        routes = [{'souce':'bole', 'destination':'caveman', 'cost':'100'}, 
+        self.routes = [{'souce':'bole', 'destination':'caveman', 'cost':'100'}, 
             {'souce':'caveman', 'destination':'biller', 'cost':'25'}, 
-            {'souce':'biller', 'destination':'Goe', 'cost':'50'}, 
-            {'souce':'Goe', 'destination':'bole', 'cost':'75'}]
+            {'souce':'biller', 'destination':'goe', 'cost':'50'}, 
+            {'souce':'goe', 'destination':'bole', 'cost':'75'}]
 
         self.clients = []
         self.nodes = []
@@ -67,11 +67,34 @@ class Server:
 
             if msg.decode() != '':                
                 data = json.loads(str(msg.decode()))
+                path = []
+                source = data['source']
+                if source == 'bole':
+                    index = 0
+                elif source == 'caveman':
+                    index = 1
+                elif source == 'biller':
+                    index = 2
+                elif source == 'goe':
+                    index = 3
+                else:
+                    print('Invalid source')
+                    continue
+                while True:
+                    route = self.routes[index]
+                    if route['destination'] == data['dest']:
+                        path.append(route['destination'])
+                        break 
+
+                    if route['souce'] == source:
+                        path.append(route['destination'])
+                        source = route['destination']
+                    
+                    index = (index + 1) % 4
                 
-                print(str(data))
-                
-                print(str(data['dest']))
-                
+
+                print("Path from "+str(data['source'])+" to "+str(data['dest'])+": "+str(path))
+
                 for connection in self.clients:
                     if connection != c:
                         connection.send(msg)
