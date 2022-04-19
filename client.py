@@ -30,14 +30,30 @@ class Client:
 
     def handle_messages(self):
         while 1:
-            print(self.s.recv(1204).decode())
+            data = json.loads(self.s.recv(1204).decode())
+            
+            msg = str(data['msg'])
+            destination = str(data['dest'])
+            
+            if(destination == self.username):
+                print(str(data['src'])+": "+str(data['msg']))
+            else:
+                h = {
+                    'src': self.username,
+                    'dest': destination,
+                    'msg': msg,
+                }
+                j = json.dumps(h)
+                self.s.send(j.encode())
+            
+                
 
     def input_handler(self):
         while 1:
             msg = input("enter message --> ")
             dest = input("enter destination address --> ")
             h = {
-                'source': self.username,
+                'src': self.username,
                 'dest': dest,
                 'msg': msg,
             }
