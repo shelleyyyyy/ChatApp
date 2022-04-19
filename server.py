@@ -1,5 +1,6 @@
 import socket
 import threading
+import json
 
 class Server:
     def __init__(self):
@@ -27,6 +28,7 @@ class Server:
             print(c.getsockname())
             print(c.getpeername()[0])
             username = c.recv(1024).decode()
+           
             
             print('New connection. Username: '+str(username))
             self.broadcast('New person joined the room. Username: '+username)
@@ -34,7 +36,7 @@ class Server:
             self.username_lookup[c] = username
             
             self.clients.append(c)
-             
+            print(self.username_lookup[c])
             threading.Thread(target=self.handle_client,args=(c,addr,)).start()
 
     def broadcast(self,msg):
@@ -56,6 +58,9 @@ class Server:
 
             if msg.decode() != '':
                 print('New message: '+str(msg.decode()))
+                enter = json.loads(str(msg.decode()))
+                print('msg'+str(enter))
+                #enter['method']
                 for connection in self.clients:
                     if connection != c:
                         connection.send(msg)
