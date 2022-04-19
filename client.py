@@ -34,12 +34,14 @@ class Client:
 
     def input_handler(self):
         while 1:
-            msg = input()
+            msg = input("enter message --> ")
+            dest = input("enter destination address --> ")
             h = {
-                'pri': msg,
-                'client': msg,
+                'source': self.username,
+                'dest': dest,
+                'msg': msg,
             }
             j = json.dumps(h)
-            self.s.send((self.username+' - '+j).encode())
+            self.s.send(j.encode())
 
 client = Client()

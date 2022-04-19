@@ -1,5 +1,6 @@
 import socket
 import threading
+import json
 
 class Server:
     def __init__(self):
@@ -8,7 +9,7 @@ class Server:
     def start_server(self):
         self.s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         
-        host = '144.75.134.22'
+        host = '144.75.135.154'
         port = int(input('Enter port to run the server on --> '))
 
         self.clients = []
@@ -54,8 +55,13 @@ class Server:
 
                 break
 
-            if msg.decode() != '':
-                print('New message: '+str(msg.decode()))
+            if msg.decode() != '':                
+                data = json.loads(str(msg.decode()))
+                
+                print(str(data))
+                
+                print(str(data['dest']))
+                
                 for connection in self.clients:
                     if connection != c:
                         connection.send(msg)
