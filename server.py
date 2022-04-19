@@ -49,18 +49,18 @@ class Server:
 
             self.username_lookup[c] = username
             
-            self.clients.append(c)
+            self.clients.append((c, username))
             print(self.username_lookup[c])
             threading.Thread(target=self.handle_client,args=(c,addr,)).start()
 
     def broadcast(self,msg):
         for connection in self.clients:
-            connection.send(msg.encode())
+            connection.send(msg)
 
     def specific_broadcast(self,msg, destination):
         for connection in self.clients:
-            if connection.getpeername()[0] == destination:
-                connection.send(msg.encode())
+            if connection[1] == destination:
+                connection[0].send(msg)
 
     def handle_client(self,c,addr):
         while True:
@@ -75,38 +75,43 @@ class Server:
 
                 break
 
-            if msg.decode() != '':                
+            if msg.decode() != '':
+
                 data = json.loads(str(msg.decode()))
-                path = []
-                source = data['source']
-                if source == 'bole':
-                    index = 0
-                elif source == 'caveman':
-                    index = 1
-                elif source == 'biller':
-                    index = 2
-                elif source == 'goe':
-                    index = 3
-                else:
-                    print('Invalid source')
-                    continue
-                while True:
-                    route = self.routes[index]
-                    if route['destination'] == data['dest']:
-                        path.append(route['destination'])
-                        break 
 
-                    if route['souce'] == source:
-                        path.append(route['destination'])
-                        source = route['destination']
+                if len(data['path']) == 0:
+
+                    path = []
+                    source = data['src']
+                    if source == 'bole':
+                        index = 0
+                    elif source == 'caveman':
+                        index = 1
+                    elif source == 'biller':
+                        index = 2
+                    elif source == 'goe':
+                        index = 3
+                    else:
+                        print('Invalid source')
+                        continue
+                    while True:
+                        route = self.routes[index]
+                        if route['destination'] == data['dest']:
+                            path.append(route['destination'])
+                            break 
+
+                        if route['souce'] == source:
+                            path.append(route['destination'])
+                            source = route['destination']
+                        
+                        index = (index + 1) % 4
                     
-                    index = (index + 1) % 4
-                
 
-                print("Path from "+str(data['source'])+" to "+str(data['dest'])+": "+str(path))
+                    print("Path from "+str(data['src'])+" to "+str(data['dest'])+": "+str(path))
+                    data['path'] = path
 
-                for connection in self.clients:
-                    if connection != c:
-                        connection.send(msg)
+                    self.specific_broadcast(json.dumps(data).encode(), data['path'][0])
+                else:
+                    self.specific_broadcast(json.dumps(data).encode(), data['path'][0])
 
 server = Server()

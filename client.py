@@ -35,11 +35,12 @@ class Client:
             msg = str(data['msg'])
             destination = str(data['dest'])
             
-            if(data['path'].length == 1):
-                print(str(data['src'])+": "+str(data['msg']))
+            if(len(data['path']) == 1):
+                print("\n" +str(data['src'])+": "+str(data['msg']))
+                print("enter message --> ")
             else:
                 h = {
-                    'src': self.username,
+                    'src': str(data['src']),
                     'dest': destination,
                     'msg': msg,
                     'path': data['path'][1:],
