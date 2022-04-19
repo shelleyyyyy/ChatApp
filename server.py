@@ -28,6 +28,7 @@ class Server:
             print(c.getsockname())
             print(c.getpeername()[0])
             username = c.recv(1024).decode()
+           
             
             print('New connection. Username: '+str(username))
             self.broadcast('New person joined the room. Username: '+username)
@@ -35,7 +36,7 @@ class Server:
             self.username_lookup[c] = username
             
             self.clients.append(c)
-             
+            print(self.username_lookup[c])
             threading.Thread(target=self.handle_client,args=(c,addr,)).start()
 
     def broadcast(self,msg):
