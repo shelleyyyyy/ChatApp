@@ -9,7 +9,7 @@ class Server:
     def start_server(self):
         self.s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         
-        host = '144.75.135.154'
+        host = '144.75.133.23'
         port = int(input('Enter port to run the server on --> '))
 
         self.clients = []
