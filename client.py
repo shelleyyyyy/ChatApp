@@ -34,25 +34,14 @@ class Client:
 
     def input_handler(self):
         while 1:
-            print('send the message global for private: input g or c')
-            c_g = input()
-            if c_g == 'g':
-                msg = input('message: ')
-                h = {
-                    'method': 'global',
-                    'message': msg
-                }
-            else:
-                receiver = input('Enter receiver username: ')
-                msg = input('message: ')
-                h = {
-                'method': 'private',
-                'user': self.username,
-                'reciever': receiver,
-                'message': msg
-                }
-
+            msg = input("enter message --> ")
+            dest = input("enter destination address --> ")
+            h = {
+                'source': self.username,
+                'dest': dest,
+                'msg': msg,
+            }
             j = json.dumps(h)
-            self.s.send((j).encode())
+            self.s.send(j.encode())
 
 client = Client()
