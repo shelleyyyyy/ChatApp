@@ -58,8 +58,9 @@ class Server:
 
             if msg.decode() != '':
                 print('New message: '+str(msg.decode()))
-                enter = json.loads(str(msg.decode()))
-                print('msg'+str(enter))
+                enter = json.loads(msg.decode())
+                print('msg'+str(enter['method']))
+                
                 #enter['method']
                 for connection in self.clients:
                     if connection != c:
