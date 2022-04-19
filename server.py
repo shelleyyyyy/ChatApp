@@ -1,5 +1,6 @@
 import socket
 import threading
+import json
 
 class Server:
     def __init__(self):
@@ -8,7 +9,8 @@ class Server:
     def start_server(self):
         self.s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         
-        host = '144.75.133.23'
+
+        host = '144.75.135.154'
         port = int(input('Enter port to run the server on --> '))
 
         routes = [{'souce':'bole', 'destination':'caveman', 'cost':'100'}, 
@@ -29,15 +31,18 @@ class Server:
 
         while True:
             c, addr = self.s.accept()
-
+            print(c)
+            print(c.getsockname())
+            print(c.getpeername()[0])
             username = c.recv(1024).decode()
+
             print('New connection. Username: '+str(username))
             self.broadcast('New person joined the room. Username: '+username)
 
             self.username_lookup[c] = username
-
+            
             self.clients.append(c)
-             
+            print(self.username_lookup[c])
             threading.Thread(target=self.handle_client,args=(c,addr,)).start()
 
     def broadcast(self,msg):
@@ -66,7 +71,13 @@ class Server:
                 mes = msg.decode()
                 mes = mes.split(' : ')
                 print('New message: '+str(msg.decode()))
-                """ for connection in self.clients:
+
+                enter = json.loads(msg.decode())
+                print('msg'+str(enter['method']))
+                
+                #enter['method']
+                for connection in self.clients:
+
                     if connection != c:
                         connection.send(msg) """
                 self.specific_broadcast(mes[0], mes[1])
