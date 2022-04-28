@@ -1,21 +1,37 @@
 import socket
 import threading
 import json
+import random
 
 class Server:
     def __init__(self):
         self.start_server()
 
+    class Node:
+        def __init__(self, name, address):
+            self.name = name
+            self.address = address
+            self.routes = []
+        
+        def add_route(self, route):
+            self.routes.append(route)
+        
+        def get_route(self, destination):
+            for route in self.routes:
+                if route['destination'] == destination:
+                    return route
+            return None
+
     def start_server(self):
         self.s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         
-        host = '144.75.133.23'
+        host = '10.4.2.145'
         port = int(input('Enter port to run the server on --> '))
 
-        self.routes = [{'souce':'bole', 'destination':'caveman', 'cost':'100'}, 
-            {'souce':'caveman', 'destination':'biller', 'cost':'25'}, 
-            {'souce':'biller', 'destination':'goe', 'cost':'50'}, 
-            {'souce':'goe', 'destination':'bole', 'cost':'75'}]
+        self.routes = [{'souce':'bole', 'destination':'caveman', 'cost':100}, 
+            {'souce':'caveman', 'destination':'biller', 'cost':25}, 
+            {'souce':'biller', 'destination':'goe', 'cost':50}, 
+            {'souce':'goe', 'destination':'bole', 'cost':75}]
 
         self.clients = []
         self.nodes = []
@@ -30,28 +46,17 @@ class Server:
 
         while True:
             c, addr = self.s.accept()
-            print(c)
-            print(c.getsockname())
-            print(c.getpeername()[0])
+            #print(c.getsockname())
+            #print(c.getpeername()[0])
             username = c.recv(1024).decode()
+            node = self.Node(username, c.getpeername()[0])
            
-            
-            # print('New connection. Username: '+str(username))
-            
-            # h = {
-            #     'msg': 'joined',
-            #     'join': username,
-            # }
-            
-            # j = json.dumps(h)
-            
-            # self.broadcast(j)
 
             self.username_lookup[c] = username
             
             self.clients.append((c, username))
-            print(self.username_lookup[c])
-            threading.Thread(target=self.handle_client,args=(c,addr,)).start()
+            #print(self.username_lookup[c])
+            threading.Thread(target=self.handle_client,args=(c,addr,node)).start()
 
     def broadcast(self,msg):
         for connection in self.clients:
@@ -61,8 +66,48 @@ class Server:
         for connection in self.clients:
             if connection[1] == destination:
                 connection[0].send(msg)
+    
+    def connect_nodes(self, new_node):
+        if(len(self.nodes) < 1):
+            self.nodes.append(new_node)
+            print("Name of node 0:" + self.nodes[0].name)
+            print('Not enough nodes to connect')
+            return
 
-    def handle_client(self,c,addr):
+        num = random.randint(0, len(self.nodes)-1)
+
+        random_node1 = self.nodes.pop(num)
+
+        print(self.nodes)
+        print(random_node1)
+        if len(self.nodes) > 2:
+            random_node2 = random_node1
+            num = 0
+            while random_node2 == random_node1:
+                num = random.randint(0, len(self.nodes)-1)
+                random_node2 = self.nodes[num]
+            
+            random_node2 = self.nodes.pop(num)
+
+            new_node.add_route({'source':new_node.name, 'destination':random_node2.name, 'cost':random.randint(1,100)})
+            random_node2.add_route({'source':random_node2.name, 'destination':new_node.name, 'cost':random.randint(1,100)})
+            self.nodes.append(random_node2)
+        
+        new_node.add_route({'source':new_node.name, 'destination':random_node1.name, 'cost':random.randint(1,100)})
+        random_node1.add_route({'source':random_node1.name, 'destination':new_node.name, 'cost':random.randint(1,100)})
+
+        self.nodes.append(new_node)
+        self.nodes.append(random_node1)
+
+        for node in self.nodes:
+            print("Routes of node " + node.name + ":")
+            print(node.routes)
+            
+
+    def handle_client(self,c,addr, node):
+
+        self.connect_nodes(new_node=node)
+
         while True:
             try:
                 msg = c.recv(1024)
@@ -81,6 +126,7 @@ class Server:
 
                 if len(data['path']) == 0:
 
+                    cost = 0
                     path = []
                     source = data['src']
                     if source == 'bole':
@@ -97,10 +143,12 @@ class Server:
                     while True:
                         route = self.routes[index]
                         if route['destination'] == data['dest']:
+                            cost += route['cost']
                             path.append(route['destination'])
                             break 
 
                         if route['souce'] == source:
+                            cost+= route['cost']
                             path.append(route['destination'])
                             source = route['destination']
                         
