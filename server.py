@@ -2,6 +2,7 @@ import socket
 import threading
 import json
 import random
+from adjacency_list import adjacency_list
 
 class Server:
     def __init__(self):
@@ -12,6 +13,9 @@ class Server:
             self.name = name
             self.address = address
             self.routes = []
+            self.bandwidth = 0
+            self.distance = 0
+            self.weight = 0
         
         def add_route(self, route):
             self.routes.append(route)
@@ -25,7 +29,7 @@ class Server:
     def start_server(self):
         self.s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         
-        host = '10.4.2.145'
+        host = '10.4.1.124'
         port = int(input('Enter port to run the server on --> '))
 
         self.routes = [{'souce':'bole', 'destination':'caveman', 'cost':100}, 
@@ -35,6 +39,7 @@ class Server:
 
         self.clients = []
         self.nodes = []
+        self.adjacency_list = adjacency_list(0)
 
         self.s.bind((host,port))
         self.s.listen(100)
@@ -66,47 +71,49 @@ class Server:
         for connection in self.clients:
             if connection[1] == destination:
                 connection[0].send(msg)
+
+    def connect_nodes_2(self, new_node):
+        self.adjacency_list.on_new_node(new_node)
+        self.adjacency_list.print_graph()
+        self.adjacency_list.print_adjacency_list()
     
     def connect_nodes(self, new_node):
-        if(len(self.nodes) < 1):
-            self.nodes.append(new_node)
-            print("Name of node 0:" + self.nodes[0].name)
+        if(len(self.adjacency_list.adj) < 1):
+            self.adjacency_list.add_node(new_node)
+            print("Name of node 0:" + self.adjacency_list.adj[0].name)
             print('Not enough nodes to connect')
             return
 
-        num = random.randint(0, len(self.nodes)-1)
+        num = random.randint(0, len(self.adjacency_list.adj)-1)
 
-        random_node1 = self.nodes.pop(num)
+        random_node1 = self.adjacency_list.adj[0]
 
-        print(self.nodes)
-        print(random_node1)
-        if len(self.nodes) > 2:
+        if len(self.adjacency_list.adj) > 2:
             random_node2 = random_node1
-            num = 0
+            num = random.randint(0, len(self.adjacency_list.adj)-1)
             while random_node2 == random_node1:
-                num = random.randint(0, len(self.nodes)-1)
-                random_node2 = self.nodes[num]
+                num = random.randint(0, len(self.adjacency_list.adj)-1)
+                random_node2 = self.adjacency_list.adj[num]
             
-            random_node2 = self.nodes.pop(num)
+            random_node2 = self.adjacency_list.adj[num]
 
-            new_node.add_route({'source':new_node.name, 'destination':random_node2.name, 'cost':random.randint(1,100)})
-            random_node2.add_route({'source':random_node2.name, 'destination':new_node.name, 'cost':random.randint(1,100)})
-            self.nodes.append(random_node2)
+            self.adjacency_list.add_edge(new_node, random_node2, 0)
+            self.adjacency_list.add_edge(random_node2, new_node, 0)
+
+            #new_node.add_route({'source':new_node.name, 'destination':random_node2.name, 'cost':random.randint(1,100)})
+            #random_node2.add_route({'source':random_node2.name, 'destination':new_node.name, 'cost':random.randint(1,100)})
         
-        new_node.add_route({'source':new_node.name, 'destination':random_node1.name, 'cost':random.randint(1,100)})
-        random_node1.add_route({'source':random_node1.name, 'destination':new_node.name, 'cost':random.randint(1,100)})
+        #new_node.add_route({'source':new_node.name, 'destination':random_node1.name, 'cost':random.randint(1,100)})
+        #random_node1.add_route({'source':random_node1.name, 'destination':new_node.name, 'cost':random.randint(1,100)})
+    
+        self.adjacency_list.add_edge(new_node, random_node1, 0)
+        self.adjacency_list.add_edge(random_node1, new_node, 0)
 
-        self.nodes.append(new_node)
-        self.nodes.append(random_node1)
-
-        for node in self.nodes:
-            print("Routes of node " + node.name + ":")
-            print(node.routes)
-            
+        self.adjacency_list.print_graph()
 
     def handle_client(self,c,addr, node):
 
-        self.connect_nodes(new_node=node)
+        self.connect_nodes_2(new_node=node)
 
         while True:
             try:
