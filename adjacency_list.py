@@ -39,10 +39,7 @@ class adjacency_list:
 
     def add_edge(self, source_node, destination_node, weight):
         source_index = self.find_index(source_node)
-        #destination_index = self.find_index(destination_node)
-        #print(f"{source_index} -> {destination_index}")
         self.adj[source_index].routes.append((destination_node, weight))
-        #self.adj[destination_index].routes.append((source_node, weight))
 
     def find_index(self, node):
         for i in range(len(self.adj)):
@@ -55,7 +52,8 @@ class adjacency_list:
             print(f"{i} -> {self.adj[i].name}")
         
     def print_adjacency_list(self):
-        for i in range(len(self.adj)):
-            print(f"{self.adj[i].name}" + ":")
-            for i in range(len(self.adj[i].routes)):
-                print(f"{self.adj[i].routes[i][0].name} -> {self.adj[i].routes[i][1]}")
+        for node in self.adj:
+            print(f"{node.name}" + ":", end="")
+            for route in node.routes:
+                print(f" -> {route[0].name}, weight: {route[1]}", end="")
+            print("")
