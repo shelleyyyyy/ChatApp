@@ -18,6 +18,11 @@ class adjacency_list:
 
         def increase_weight(self, weight):
             self.weight += weight
+
+        def print_route(self):
+            for item in self.route:
+                print(item.name, " -> ", end="")
+            print()
     
     def add_node(self, node):
         self.adj.append(node)
@@ -88,6 +93,45 @@ class adjacency_list:
             for route in node.routes:
                 print(f" -> {route[0].name}, weight: {route[1]}", end="")
             print("")
+
+    def add_weight_to_paths(self, paths):
+        new_group = []
+        new_path = []
+        for group in paths:
+            new_path = []
+            for path in group:
+                node = self.get_node_by_name(path)
+                new_path.append(node)
+            new_group.append(new_path)
+        weighted_paths = []
+        for group in new_group:
+            weighted_paths.append(self.get_weight(group))
+        
+        return weighted_paths
+
+    def get_weight(self, path):
+        weight = 0
+        for i in range(len(path) - 1):
+            temp = self.find_route(path[i], path[i + 1])[1]
+            weight += temp
+
+        return self.path(path[0], path[-1], path, weight)
+
+
+    def get_all_possible_paths(self, source, destination):
+        self.printAllPaths(source, destination)
+        f = open("path.txt", "r")
+        paths = f.read().split("\n")
+        new_paths = []
+        for path in paths:
+            new_paths.append(path[:-1].split(" "))
+        new_paths = new_paths[:-1]
+        print(new_paths)
+        f.close()
+        file = open("path.txt","r+")
+        file.truncate(0)
+        file.close()
+        return self.add_weight_to_paths(new_paths)
 
     def printAllPaths(self, s, d):
         #self.paths = []

@@ -11,10 +11,8 @@ class Node:
             self.routes.append(route)
         
         def get_route(self, destination):
-            print("Destination: " + destination)
             for route in self.routes:
-                if route[0] == destination:
-                    print("Found route" + str(route[0]))
+                if route[0].name == destination:
                     return route
             return None
             
@@ -32,18 +30,9 @@ def test():
 
     list.print_adjacency_list()
 
-    list.printAllPaths(node, node3)
-    f = open("path.txt", "r")
-    paths = f.read().split("\n")
-    new_paths = []
-    for path in paths:
-        new_paths.append(path.split(" "))
-    print(new_paths)
-    f.close()
-
-    file = open("path.txt","r+")
-    file.truncate(0)
-    file.close()
+    weight_paths = list.get_all_possible_paths(node, node3)
+    for path in weight_paths:
+        print(path.print_route(), path.weight)
     
     
 
