@@ -22,7 +22,7 @@ class Server:
         
         def get_route(self, destination):
             for route in self.routes:
-                if route[0] == destination:
+                if route[0].name == destination:
                     return route
             return None
 
@@ -75,40 +75,6 @@ class Server:
     def connect_nodes_2(self, new_node):
         self.adjacency_list.on_new_node(new_node)
         self.adjacency_list.print_adjacency_list()
-    
-    def connect_nodes(self, new_node):
-        if(len(self.adjacency_list.adj) < 1):
-            self.adjacency_list.add_node(new_node)
-            print("Name of node 0:" + self.adjacency_list.adj[0].name)
-            print('Not enough nodes to connect')
-            return
-
-        num = random.randint(0, len(self.adjacency_list.adj)-1)
-
-        random_node1 = self.adjacency_list.adj[0]
-
-        if len(self.adjacency_list.adj) > 2:
-            random_node2 = random_node1
-            num = random.randint(0, len(self.adjacency_list.adj)-1)
-            while random_node2 == random_node1:
-                num = random.randint(0, len(self.adjacency_list.adj)-1)
-                random_node2 = self.adjacency_list.adj[num]
-            
-            random_node2 = self.adjacency_list.adj[num]
-
-            self.adjacency_list.add_edge(new_node, random_node2, 0)
-            self.adjacency_list.add_edge(random_node2, new_node, 0)
-
-            #new_node.add_route({'source':new_node.name, 'destination':random_node2.name, 'cost':random.randint(1,100)})
-            #random_node2.add_route({'source':random_node2.name, 'destination':new_node.name, 'cost':random.randint(1,100)})
-        
-        #new_node.add_route({'source':new_node.name, 'destination':random_node1.name, 'cost':random.randint(1,100)})
-        #random_node1.add_route({'source':random_node1.name, 'destination':new_node.name, 'cost':random.randint(1,100)})
-    
-        self.adjacency_list.add_edge(new_node, random_node1, 0)
-        self.adjacency_list.add_edge(random_node1, new_node, 0)
-
-        self.adjacency_list.print_graph()
 
     def handle_client(self,c,addr, node):
 
@@ -133,43 +99,72 @@ class Server:
                 if len(data['path']) == 0:
 
                     source_node = self.adjacency_list.get_node_by_name(data['source'])
-                    destination_node = self.adjacency_list.get_node_by_name(data['destination'])
-                    
-                    self.adjacency_list.printAllPaths
-
-                    """ cost = 0
-                    path = []
-                    source = data['src']
-                    if source == 'bole':
-                        index = 0
-                    elif source == 'caveman':
-                        index = 1
-                    elif source == 'biller':
-                        index = 2
-                    elif source == 'goe':
-                        index = 3
+                    if self.adjacency_list.get_node_by_name(data['destination']) == None:
+                        print("FAIL")
+                        msg = 'No User Name ' + data['destination'] + ' Found'
+                        h = {
+                            'src': str(data['source']),
+                            'dest': str(data['destination']),
+                            'msg': msg,
+                            'path': [data['source']],
+                        }
+                        self.specific_broadcast(json.dumps(h).encode(), data['source'])
                     else:
-                        print('Invalid source')
-                        continue
-                    while True:
-                        route = self.routes[index]
-                        if route['destination'] == data['dest']:
-                            cost += route['cost']
-                            path.append(route['destination'])
-                            break 
+                        destination_node = self.adjacency_list.get_node_by_name(data['destination'])
 
-                        if route['souce'] == source:
-                            cost+= route['cost']
-                            path.append(route['destination'])
-                            source = route['destination']
+                        print('source_node: '+str(source_node.name))
+                        print('destination_node: '+str(destination_node.name))
                         
-                        index = (index + 1) % 4 """
-                    
+                        weight_paths = self.adjacency_list.get_all_possible_paths(source_node, destination_node)
+                        for path in weight_paths:
+                            path.print_route()
+                            print(" has weight of: " + str(path.weight))            
+                        best_path = self.adjacency_list.return_best_path(weight_paths)
 
-                    print("Path from "+str(data['src'])+" to "+str(data['dest'])+": "+str(path))
-                    data['path'] = path
+                        """ cost = 0
+                        path = []
+                        source = data['src']
+                        if source == 'bole':
+                            index = 0
+                        elif source == 'caveman':
+                            index = 1
+                        elif source == 'biller':
+                            index = 2
+                        elif source == 'goe':
+                            index = 3
+                        else:
+                            print('Invalid source')
+                            continue
+                        while True:
+                            route = self.routes[index]
+                            if route['destination'] == data['dest']:
+                                cost += route['cost']
+                                path.append(route['destination'])
+                                break 
 
-                    self.specific_broadcast(json.dumps(data).encode(), data['path'][0])
+                            if route['souce'] == source:
+                                cost+= route['cost']
+                                path.append(route['destination'])
+                                source = route['destination']
+                            
+                            index = (index + 1) % 4 """
+                        
+
+                        print("Best path from "+str(data['source'])+" to "+str(data['destination'])+" has weight "+str(best_path.weight))
+
+                        readable = []
+                        for node in best_path.route:
+                            readable.append(node.name)
+                        readable.pop(0)
+
+                        data['path'] = readable
+
+                        print(readable)
+                        print()
+                        print("-------------------------------------------------------")
+                        print()
+
+                        self.specific_broadcast(json.dumps(data).encode(), data['path'][0])
                 else:
                     self.specific_broadcast(json.dumps(data).encode(), data['path'][0])
 

@@ -33,15 +33,15 @@ class Client:
             data = json.loads(self.s.recv(1204).decode())
             
             msg = str(data['msg'])
-            destination = str(data['dest'])
+            destination = str(data['destination'])
             
             if(len(data['path']) == 1):
-                print("\n" +str(data['src'])+": "+str(data['msg']))
+                print("\n" +str(data['source'])+": "+str(data['msg']))
                 print("enter message --> ")
             else:
                 h = {
-                    'src': str(data['src']),
-                    'dest': destination,
+                    'source': str(data['source']),
+                    'destination': destination,
                     'msg': msg,
                     'path': data['path'][1:],
                 }

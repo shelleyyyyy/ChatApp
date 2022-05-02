@@ -22,7 +22,6 @@ class adjacency_list:
         def print_route(self):
             for item in self.route:
                 print(item.name, " -> ", end="")
-            print()
     
     def add_node(self, node):
         self.adj.append(node)
@@ -116,6 +115,13 @@ class adjacency_list:
             weight += temp
 
         return self.path(path[0], path[-1], path, weight)
+
+    def return_best_path(self, paths):
+        best_path = paths[0]
+        for path in paths:
+            if path.weight < best_path.weight:
+                best_path = path
+        return best_path
 
 
     def get_all_possible_paths(self, source, destination):
