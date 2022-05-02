@@ -55,8 +55,8 @@ class Client:
             msg = input("enter message --> ")
             dest = input("enter destination address --> ")
             h = {
-                'src': self.username,
-                'dest': dest,
+                'source': self.username,
+                'destination': dest,
                 'msg': msg,
                 'path': [],
             }

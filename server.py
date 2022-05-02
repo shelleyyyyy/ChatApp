@@ -22,14 +22,14 @@ class Server:
         
         def get_route(self, destination):
             for route in self.routes:
-                if route['destination'] == destination:
+                if route[0] == destination:
                     return route
             return None
 
     def start_server(self):
         self.s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         
-        host = '10.4.1.124'
+        host = '144.75.133.23'
         port = int(input('Enter port to run the server on --> '))
 
         self.routes = [{'souce':'bole', 'destination':'caveman', 'cost':100}, 
@@ -74,7 +74,6 @@ class Server:
 
     def connect_nodes_2(self, new_node):
         self.adjacency_list.on_new_node(new_node)
-        self.adjacency_list.print_graph()
         self.adjacency_list.print_adjacency_list()
     
     def connect_nodes(self, new_node):
@@ -133,7 +132,12 @@ class Server:
 
                 if len(data['path']) == 0:
 
-                    cost = 0
+                    source_node = self.adjacency_list.get_node_by_name(data['source'])
+                    destination_node = self.adjacency_list.get_node_by_name(data['destination'])
+                    
+                    self.adjacency_list.printAllPaths
+
+                    """ cost = 0
                     path = []
                     source = data['src']
                     if source == 'bole':
@@ -159,7 +163,7 @@ class Server:
                             path.append(route['destination'])
                             source = route['destination']
                         
-                        index = (index + 1) % 4
+                        index = (index + 1) % 4 """
                     
 
                     print("Path from "+str(data['src'])+" to "+str(data['dest'])+": "+str(path))
