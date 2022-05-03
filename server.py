@@ -29,7 +29,7 @@ class Server:
     def start_server(self):
         self.s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         
-        host = '10.4.2.9'
+        host = '10.4.2.146'
         port = int(input('Enter port to run the server on --> '))
 
         self.routes = [{'souce':'bole', 'destination':'caveman', 'cost':100}, 
