@@ -2,11 +2,15 @@
 
 * There are no installs required for this repo
 
-* There are two ways to run the application: 
+* There are three ways to run the application: 
 
 ### 1: Run the test file with pre-built network topology
 
 1. Run "python test.py" in the console
+### 1: Run the test file with pre-built network topology
+
+1. Run "python test_large.py" in the console
+2. Check the test.txt file for test results
 
 ### 2: Boot the sever and connect clients 
 

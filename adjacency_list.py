@@ -132,7 +132,7 @@ class adjacency_list:
         for path in paths:
             new_paths.append(path[:-1].split(" "))
         new_paths = new_paths[:-1]
-        print(new_paths)
+        #print(new_paths)
         f.close()
         file = open("path.txt","r+")
         file.truncate(0)
@@ -161,7 +161,7 @@ class adjacency_list:
         # If current vertex is same as destination, then print
         # current path[]
         if u == d:
-            print ("Check", str(path.route))
+            #print ("Check", str(path.route))
             f = open("path.txt", "a")
             for item in path.route:
                 f.write(item + " ")
